@@ -21,7 +21,7 @@ interface AssessmentResults {
     max_score: number
     percentage: number
   }
-  element_scores: Record<string, any>
+  element_scores: Record<string, ElementScore>
   insights: Array<{
     type: string
     message: string
@@ -216,7 +216,7 @@ export default function AssessmentResults({ instanceId }: Props) {
           name: `R${q.question_sequence}`,
           score: 0,
           maxScore: null,
-          type: 'reflection',
+          type: 'reflection' as const,
           isAttempted
         }
       }
@@ -225,7 +225,7 @@ export default function AssessmentResults({ instanceId }: Props) {
         name: `Q${q.question_sequence}`,
         score: isAttempted ? q.answer_value ?? 0 : 0,
         maxScore: q.max_score ?? 5,
-        type: 'question',
+        type: 'question' as const,
         isAttempted
       }
     })
@@ -355,21 +355,28 @@ export default function AssessmentResults({ instanceId }: Props) {
         </div>
       )}
       {/* Element level control */}
-      <AssessmentControls
-          statusFilter={statusFilter}
-          setStatusFilter={setStatusFilter}
-          sortBy={sortBy}
-          setSortBy={setSortBy}
-          activeElement={activeElement}
-          setSelectedElement={setSelectedElement}
-          processedElements={processedElements}
-      />
+      {processedElements.length > 0 && (
+  <div className="card element-chart-section">
+    <AssessmentControls
+      statusFilter={statusFilter}
+      setStatusFilter={setStatusFilter}
+      sortBy={sortBy}
+      setSortBy={setSortBy}
+      activeElement={activeElement}
+      setSelectedElement={setSelectedElement}
+      processedElements={processedElements}
+    />
+
+{/* Bar Chart */}
+    {derivedResult && (
+      <ScoreChart data={derivedResult.scorePerQuestion} />
+    )}
+  </div>
+)}
 
       {/* Bar Chart */}
 
-      {derivedResult && (
-       <ScoreChart data={derivedResult.scorePerQuestion} />
-      )}
+     
 
 
        {/* Question Breakdown Component */}
